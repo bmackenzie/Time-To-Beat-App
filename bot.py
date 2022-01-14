@@ -37,19 +37,21 @@ async def search(ctx, search_string):
         best_match = process.extract(search_string, names_dict.keys(), limit = 1)
         game = names_dict[best_match[0][0]]
 
+        name = game.game_name
         time_main = f"{game.gameplay_main_label}: {game.gameplay_main} {game.gameplay_main_unit}"
         time_extra = f"{game.gameplay_main_extra_label}: {game.gameplay_main_extra} {game.gameplay_main_extra_unit}"
         time_completionist = f"{game.gameplay_completionist_label}: {game.gameplay_completionist} {game.gameplay_completionist_unit}"
         game_id = game.game_id
-
-        response = f"{time_main}\n{time_extra}\n{time_completionist}"
+        response = f"{name}\n{time_main}\n{time_extra}\n{time_completionist}"
 
         try:
             page = requests.get("https://howlongtobeat.com/game?id=" + game_id, headers = headers)
             soup = BeautifulSoup(page.text)
             div = soup.find_all("div", {"class": "game_chart"})
             rating = div[0].find_all('h5')[0].text
-            response += f"\n{rating}"
+            div = soup.find_all("img")
+            image = 'https://howlongtobeat.com' + div[0]['src']
+            response += f"\n{rating}\n{image}"
         except:
             response+="\nRating not found"
     except:
